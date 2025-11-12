@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>BLUEPINK · 찾기</title>
+<style>
+  :root{
+    --W: 820px;          /* 페이지 최대 너비 (필요시 여기만 수정) */
+    --bg: #0b0b0b;       /* 배경색 */
+    --card: #121212;     /* 카드 배경 */
+    --line: #262626;     /* 카드 테두리 */
+    --fg: #f5f5f5;       /* 기본 글자색 */
+    --muted:#b9b9b9;     /* 보조 글자색 */
+    --accent:#ffd166;    /* 버튼 포커스 색 */
+    --radius:18px;       /* 카드 둥근정도 */
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--fg);
+            font-family:system-ui,"Noto Sans KR",sans-serif;line-height:1.6}
+  main{min-height:100svh;display:flex;align-items:center;justify-content:center;padding:20px}
+  .wrap{width:min(92vw,var(--W));margin:0 auto}
+  .card{
+    background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+    padding:18px 16px 20px; box-shadow:0 10px 30px rgba(0,0,0,.25);
+    text-align:center;
+  }
+  .hero{margin:4px auto 14px; display:flex; justify-content:center}
+  .hero img{display:block; width:80%; height:auto; border-radius:12px}
+  .text{white-space:pre-line; margin:8px 0 14px}
+  .row{display:flex; gap:10px; justify-content:center; align-items:center; flex-wrap:wrap}
+  input[type="text"]{
+    width:min(560px, 80vw);
+    padding:12px 14px; font-size:16px; border-radius:12px; color:var(--fg);
+    background:#1a1a1a; border:1px solid var(--line); outline:none; text-align:center;
+  }
+  .btn{
+    padding:12px 22px; border-radius:12px; font-weight:800; cursor:pointer;
+    color:#111; background:#f0d264; border:1px solid #000; transition:.12s;
+  }
+  .btn:hover{filter:brightness(1.03); transform:translateY(-1px)}
+  .btn:active{transform:translateY(0)}
+  .muted{color:var(--muted); font-size:.9rem; margin-top:8px}
+
+  /* 페이지 전환 */
+  [hidden]{display:none !important}
+
+  @media (max-width:420px){
+    .card{padding:14px 12px 16px}
+    input[type="text"]{width:100%}
+  }
+</style>
+</head>
+<body>
+<main>
+  <div class="wrap">
+
+    <!-- 1 페이지 -->
+    <section id="p1" class="card">
+      <div class="hero">
+        <img src="static/trash1.png" alt="trash1">
+      </div>
+      <div class="text">
+        음..?<br>
+        BLUEPINK는 4명 아닌가?<br>
+        그러면 그분이 오면 나온다는 소리네?
+      </div>
+      <div class="row" style="margin-top:8px">
+        <input id="answer1" type="text" placeholder="자... 어디 한 번..." autocomplete="off">
+        <button class="btn" id="shoutBtn">외치기</button>
+      </div>
+    </section>
+
+    <!-- 2 페이지 -->
+    <section id="p2" class="card" hidden>
+      <div class="hero">
+        <img src="static/trash2.png" alt="trash2">
+      </div>
+      <div class="text">
+        잡았다! 염라대왕님 아무리 아이돌이 좋다고 해도 여기서 뭐하시는 거에요? 자 얼른..
+      </div>
+      <div class="row">
+        <button class="btn" id="to22">저승으로 돌아가시죠.</button>
+      </div>
+    </section>
+
+    <!-- 2-2 페이지 -->
+    <section id="p22" class="card" hidden>
+      <div class="hero">
+        <img src="static/trash2-2.png" alt="trash2-2">
+      </div>
+      <div class="text">아무래도 마패를 가지러 가야할 것 같다.</div>
+      <div class="row">
+        <button class="btn" data-goto="p1">처음으로</button>
+      </div>
+    </section>
+
+    <!-- 3 페이지 -->
+    <section id="p3" class="card" hidden>
+      <div class="hero">
+        <img src="static/trash3.png" alt="trash3">
+      </div>
+      <div class="row">
+        <button class="btn" data-goto="p1">처음으로</button>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<script>
+  /* ========== 유틸 ========== */
+  const $ = sel => document.querySelector(sel);
+  const pages = ["p1","p2","p22","p3"];
+  function show(id){
+    pages.forEach(pid => document.getElementById(pid).hidden = (pid!==id));
+    // 포커스 품질
+    if(id==="p1") setTimeout(()=>$("#answer1").focus(), 50);
+    window.scrollTo({top:0, behavior:"instant"});
+  }
+
+  /* ========== 1페이지 정답 판정 ========== 
+     요구: '어지수다'의 각 음절이 모두 포함되면(사이에 다른 문자가 있어도 됨, 공백 무시)
+     → 2페이지. 입력값에 'burn'가 포함되면 → 3페이지.
+  */
+  function normalize(s){
+    return (s||"")
+      .toLowerCase()
+      .replace(/\s+/g,"")         // 공백 제거
+      .replace(/[^\p{L}\p{N}]/gu,""); // 문장부호 제거
+  }
+  function containsSubsequence(hay, target){
+    // hay 에 target의 글자들이 순서대로 존재하면 true (사이 문자 허용)
+    let i=0;
+    for(const ch of hay){
+      if(ch===target[i]) i++;
+      if(i===target.length) return true;
+    }
+    return false;
+  }
+
+  $("#shoutBtn").addEventListener("click", () => {
+    const raw = $("#answer1").value;
+    const s   = normalize(raw);
+
+    // 'burn'가 포함되면 3페이지
+    if (s.includes("burn")) { show("p3"); return; }
+
+    // '어지수다' (순서 유지, 사이 문자는 허용)
+    const ok = containsSubsequence(s, "어지수다");
+    show(ok ? "p2" : "p1");
+  });
+
+  // 엔터키로도 제출
+  $("#answer1").addEventListener("keydown", (e)=>{
+    if(e.key==="Enter") $("#shoutBtn").click();
+  });
+
+  // 2 → 2-2
+  $("#to22").addEventListener("click", ()=> show("p22"));
+
+  // 공용 "처음으로" 버튼들
+  document.querySelectorAll('[data-goto="p1"]').forEach(btn=>{
+    btn.addEventListener('click', ()=> show("p1"));
+  });
+
+  // 시작
+  show("p1");
+</script>
+</body>
+</html>
