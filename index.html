@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>BLUEPINK · 찾기</title>
+<style>
+  :root{
+    --W: 820px;          /* 페이지 최대 너비 (여기만 수정하면 전체 폭 조절 가능) */
+    --bg: #0b0b0b;       /* 배경색 */
+    --card: #121212;     /* 카드 배경 */
+    --line: #262626;     /* 카드 테두리 */
+    --fg: #f5f5f5;       /* 기본 글자색 */
+    --muted:#b9b9b9;     /* 보조 글자색 */
+    --accent:#ffd166;    /* 버튼 포커스 색 */
+    --radius:18px;       /* 카드 둥근정도 */
+  }
+  *{box-sizing:border-box}
+  html,body{
+    margin:0;
+    padding:0;
+    background:var(--bg);
+    color:var(--fg);
+    font-family:system-ui,"Noto Sans KR",sans-serif;
+    line-height:1.6;
+  }
+  main{
+    min-height:100svh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+  }
+  .wrap{
+    width:min(92vw,var(--W));
+    margin:0 auto;
+  }
+  .card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:18px 16px 20px;
+    box-shadow:0 10px 30px rgba(0,0,0,.25);
+    text-align:center;            /* ✅ 카드 안 텍스트/요소 가운데 정렬 */
+  }
+  .hero{
+    margin:4px auto 14px;
+    display:flex;
+    justify-content:center;
+  }
+  .hero img{
+    display:block;
+    width:80%;
+    max-width:480px;
+    height:auto;
+    border-radius:12px;
+  }
+  .text{
+    white-space:pre-line;
+    margin:8px 0 14px;
+    text-align:center;           /* ✅ 문구도 가운데 정렬 */
+  }
+  .row{
+    display:flex;
+    gap:10px;
+    justify-content:center;
+    align-items:center;
+    flex-wrap:wrap;
+  }
+  input[type="text"]{
+    width:min(560px, 80vw);
+    padding:12px 14px;
+    font-size:16px;
+    border-radius:12px;
+    color:var(--fg);
+    background:#1a1a1a;
+    border:1px solid var(--line);
+    outline:none;
+    text-align:center;           /* ✅ 입력칸 안 글자도 가운데 */
+  }
+  .btn{
+    padding:12px 22px;
+    border-radius:12px;
+    font-weight:800;
+    cursor:pointer;
+    color:#111;
+    background:#f0d264;
+    border:1px solid #000;
+    transition:.12s;
+  }
+  .btn:hover{
+    filter:brightness(1.03);
+    transform:translateY(-1px);
+  }
+  .btn:active{
+    transform:translateY(0);
+  }
+
+  /* 페이지 전환 */
+  [hidden]{display:none !important}
+
+  @media (max-width:420px){
+    .card{padding:14px 12px 16px}
+    input[type="text"]{width:100%}
+  }
+</style>
+</head>
+<body>
+<main>
+  <div class="wrap">
+
+    <!-- 1 페이지 -->
+    <section id="p1" class="card">
+      <div class="hero">
+        <img src="static/trash1.png" alt="trash1">
+      </div>
+      <div class="text">
+        난 염라대왕님이 나오실 말을 알고 있지. 흐흐..
+      </div>
+      <div class="row" style="margin-top:8px">
+        <input id="answer1" type="text" placeholder="자... 어디 한 번..." autocomplete="off">
+        <!-- ✅ inline onclick 형식 -->
+        <button class="btn" onclick="handleShout()">외치기</button>
+      </div>
+    </section>
+
+    <!-- 2 페이지 -->
+    <section id="p2" class="card" hidden>
+      <div class="hero">
+        <img src="static/trash2-1.png" alt="trash2">
+      </div>
+      <div class="text">
+        잡았다! 염라대왕님 아무리 아이돌이 좋다고 해도 여기서 뭐하시는 거에요? 자 얼른..
+      </div>
+      <div class="row">
+        <!-- ✅ inline onclick 형식 -->
+        <button class="btn" onclick="show('p22')">저승으로 돌아가시죠.</button>
+      </div>
+    </section>
+
+    <!-- 2-2 페이지 -->
+    <section id="p22" class="card" hidden>
+      <div class="hero">
+        <img src="static/trash2-2.png" alt="trash2-2">
+      </div>
+      <div class="text">아무래도 마패를 가지러 가야할 것 같다.</div>
+      <div class="row">
+        <!-- ✅ inline onclick 형식 -->
+        <button class="btn" onclick="show('p1')">처음으로</button>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<script>
+  const pages = ["p1","p2","p22"];
+
+  /* 공용 페이지 전환 */
+  function show(id){
+    pages.forEach(pid => {
+      const el = document.getElementById(pid);
+      if(el) el.hidden = (pid !== id);
+    });
+    if(id === "p1"){
+      setTimeout(() => document.getElementById("answer1").focus(), 50);
+    }
+    window.scrollTo({top:0, behavior:"instant"});
+  }
+
+  /* 입력값 정규화: 공백/문장부호 제거 + 소문자 */
+  function normalize(s){
+    return (s || "")
+      .toLowerCase()
+      .replace(/\s+/g,"")
+      .replace(/[^\p{L}\p{N}]/gu,"");
+  }
+
+  // ✅ 정답: "어? BLUEPINK다!" (띄어쓰기, 대소문자, 문장부호 무시)
+  const ANSWER_NORM = normalize("어? BLUEPINK다!");
+
+  function handleShout(){
+    const raw = document.getElementById("answer1").value;
+    const s   = normalize(raw);
+
+    // 정답 문장이 포함되어 있으면 통과
+    const ok = s.includes(ANSWER_NORM);
+
+    if(ok){
+      show("p2");
+    } else {
+      // 틀리면 그대로 1페이지 유지 (필요하면 alert 추가 가능)
+      alert("아무 반응이 없다… 다시 외쳐 볼까?");
+      show("p1");
+    }
+  }
+
+  // 엔터키로도 제출
+  document.getElementById("answer1").addEventListener("keydown", (e)=>{
+    if(e.key === "Enter") handleShout();
+  });
+
+  // 시작 페이지
+  show("p1");
+</script>
+</body>
+</html>
