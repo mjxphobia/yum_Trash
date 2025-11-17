@@ -95,15 +95,6 @@
       </div>
     </section>
 
-    <!-- 3 페이지 -->
-    <section id="p3" class="card" hidden>
-      <div class="hero">
-        <img src="static/trash3.png" alt="trash3">
-      </div>
-      <div class="row">
-        <button class="btn" data-goto="p1">처음으로</button>
-      </div>
-    </section>
 
   </div>
 </main>
@@ -143,8 +134,6 @@
     const raw = $("#answer1").value;
     const s   = normalize(raw);
 
-    // 'burn'가 포함되면 3페이지
-    if (s.includes("burn")) { show("p3"); return; }
 
     // '어지수다' (순서 유지, 사이 문자는 허용)
     const ok = containsSubsequence(s, "어지수다");
